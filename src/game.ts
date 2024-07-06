@@ -1,8 +1,34 @@
 import "./style.css";
 import * as THREE from "three";
 
-type QueryFunction = (query: string) => void;
-class Component { }
+type QueryFunction = (
+  query: string,
+  ...componentTypes: (typeof Component)[]
+) => void;
+
+class Component {}
+
+type ComponentConstructor = new () => Component;
+
+type Acessors = object | object[];
+
+type QueryIterator<A extends Acessors> = A extends any[]
+  ? {
+      [I in keyof A]: A[I];
+    }
+  : A;
+
+type InstanceList<T extends (abstract new (...args: any) => any)[]> = {
+  [I in keyof T]: InstanceType<T[I]>;
+};
+
+// type hmtest = [typeof Person, typeof Name];
+//
+// type test2 = InstaceList<hmtest>
+
+// type IteratorItem<T> = I extends Mut<infer X> ? X : Readonly<I>;
+
+// type Iteratored = Iterator<[Person, Name]>
 
 class Entity {
   components: Map<string, Component>;
@@ -16,8 +42,10 @@ class Entity {
     this.components.set(componentType, component);
   }
 
-  getComponent<T extends Component>(componentType: new () => T) {
-    return this.components.get(componentType.name) as T | undefined;
+  getComponent<T extends typeof Component>(componentType: T) {
+    return this.components.get(componentType.name) as
+      | InstanceType<T>
+      | undefined;
   }
 }
 
@@ -49,11 +77,11 @@ class App {
     for (const system of this.systems) {
       system("hm");
     }
-    for (const entity of this.entities) {
-      for (const component of entity.components.values()) {
-        console.log(component);
-      }
-    }
+    // for (const entity of this.entities) {
+    //   for (const component of entity.components.values()) {
+    //     console.log(component);
+    //   }
+    // }
     this.renderer.render(this.scene, this.camera);
   }
 
@@ -64,14 +92,36 @@ class App {
   addEntity(entity: Entity) {
     this.entities.push(entity);
   }
+
+  query<T extends ComponentConstructor[]>(componentTypes: T) {
+    const queryArr: InstanceList<T>[] = [];
+    for (const entity of this.entities) {
+      const componentArr: InstanceList<T> = [] as InstanceList<T>;
+      for (const componentType of componentTypes) {
+        const component = entity.getComponent(componentType);
+        if (!component) continue;
+        componentArr.push(component);
+      }
+      queryArr.push(componentArr);
+    }
+    return queryArr;
+  }
 }
 
-class Person { }
-class Name { }
+class Person {
+  test = "hm";
+}
+
+class Name {
+  hmm = "wow";
+}
 
 function main() {
   const app = new App();
-  app.addSystem((hm: string) => console.log(hm));
+  app.addSystem(() => {
+    const list = app.query([Person, Name]);
+    console.log(list);
+  });
   const newEntity = new Entity();
   newEntity.addComponent(new Person());
   newEntity.addComponent(new Name());
