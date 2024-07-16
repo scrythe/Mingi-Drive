@@ -6,17 +6,17 @@ type QueryFunction = (
   ...componentTypes: (typeof Component)[]
 ) => void;
 
-class Component {}
+class Component { }
 
 type ComponentConstructor = new () => Component;
 
-type Acessors = object | object[];
+// type Acessors = object | object[];
 
-type QueryIterator<A extends Acessors> = A extends any[]
-  ? {
-      [I in keyof A]: A[I];
-    }
-  : A;
+// type QueryIterator<A extends Acessors> = A extends any[]
+//   ? {
+//     [I in keyof A]: A[I];
+//   }
+//   : A;
 
 type InstanceList<T extends (abstract new (...args: any) => any)[]> = {
   [I in keyof T]: InstanceType<T[I]>;
@@ -69,19 +69,23 @@ class App {
     this.entities = [];
 
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.setAnimationLoop(() => this.update());
+    // this.renderer.setAnimationLoop(() => this.update());
     document.body.appendChild(this.renderer.domElement);
   }
 
   update() {
-    for (const system of this.systems) {
-      system("hm");
-    }
+    // for (const system of this.systems) {
+    //   system("hm");
+    // }
     // for (const entity of this.entities) {
     //   for (const component of entity.components.values()) {
     //     console.log(component);
     //   }
     // }
+    this.renderer.render(this.scene, this.camera);
+  }
+
+  render() {
     this.renderer.render(this.scene, this.camera);
   }
 
@@ -91,6 +95,10 @@ class App {
 
   addEntity(entity: Entity) {
     this.entities.push(entity);
+  }
+
+  addObject(cube: THREE.Mesh) {
+    this.scene.add(cube);
   }
 
   query<T extends ComponentConstructor[]>(componentTypes: T) {
@@ -122,10 +130,36 @@ function main() {
     const list = app.query([Person, Name]);
     console.log(list);
   });
+  (() => {
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    const cube = new THREE.Mesh(geometry, material);
+    app.addObject(cube);
+  })();
   const newEntity = new Entity();
   newEntity.addComponent(new Person());
   newEntity.addComponent(new Name());
   app.addEntity(newEntity);
+  // gameLoop(app.update, app.render);
 }
+
+// function gameLoop(integrate: Function, render: Function) {
+//   let prevTime = performance.now();
+//   const fps = 60;
+//   const dt = 1000 / fps;
+//   let accumulater = 0;
+//   const update = (currentTime: number) => {
+//     const frameTime = currentTime - prevTime;
+//     prevTime = currentTime;
+//     accumulater += frameTime;
+//     while (accumulater >= dt) {
+//       integrate();
+//       accumulater -= dt;
+//     }
+//     render();
+//     requestAnimationFrame(update);
+//   };
+//   requestAnimationFrame(update);
+// }
 
 main();
