@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "tsnode": "tsx src/game3.ts",
+    "tsnode": "tsx src/game4.ts",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest"

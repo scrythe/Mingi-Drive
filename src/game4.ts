@@ -1,4 +1,13 @@
-export const types = {
+// export const Types = {
+//   i8: "i8",
+//   u8: "u8",
+//   i16: "i16",
+//   u16: "u16",
+//   i32: "i32",
+//   u32: "u32",
+// } as const;
+
+export const Types = {
   i8: Int8Array,
   u8: Uint8Array,
   i16: Int16Array,
@@ -11,37 +20,45 @@ type ExtractValues<T> = { [K in keyof T]: T[K] }[keyof T];
 
 // type Mutable<T> = { -readonly [K in keyof T]: T[K] };
 
-type Types = ExtractValues<typeof types>;
-
-type Schema = Types | { [type: string]: Types | Schema };
-
-// type Component<T extends Schema> = { id: number } & T;
-//
-type Component<T extends Schema> = T extends Types
-  ? { id: number; value: T }
-  : T extends { [type: string]: infer P }
-    ? P extends Types
-      ? { [K in keyof T]: { id: number; value: T[K] } }
-      : P extends Schema
-        ? Component<T[K]>
-        : unknown
-    : unknown;
-
-// function addComponent<T extends Schema>(comp: T): Component<T> {
-//   const newComp = comp as unknown as Component<T>;
-//   // newComp.id = 12;
-//   return newComp;
-// }
-
-// const comp = addComponent({ x: types.i8 });
-
 // type Prettify<T> = { [K in keyof T]: T[K] };
 
-// type CompTemp1 = Int8ArrayConstructor;
-// type CompTest1 = Component<CompTemp1>;
+type Type = ExtractValues<typeof Types>;
 
-// type CompTemp2 = { x: Int8ArrayConstructor };
-// type CompTest2 = Component<CompTemp2>;
+// type TypeMap = {
+//   i8: Int8Array; // Constructor?
+//   u8: Uint8Array;
+//   i16: Int16Array;
+//   u16: Uint16Array;
+//   i32: Int16Array;
+//   u32: Uint16Array;
+// };
 
-type CompTemp3 = { x: { y: Int8ArrayConstructor } };
-type CompTest3 = Component<CompTemp3>;
+type Schema = Type | { [type: string]: Type };
+
+type Component<T extends Schema> = T extends Type
+  ? { id: number; value: T }
+  : { [K in keyof T]: T[K] extends Schema ? Component<T[K]> : unknown };
+
+function isTypedArray(comp: Schema): comp is Type {
+  return Object.getPrototypeOf(comp).name == "TypedArray";
+}
+
+function addComponent<T extends Schema>(comp: T): Component<T> {
+  const newComp = comp as unknown as Component<T>;
+  if (isTypedArray(comp)) {
+    console.log(comp);
+  }
+  // if (comp.name) comp is Types {
+  // console.log(comp.name);
+  // if (comp in Types) { }
+
+  // const newComp={
+  //
+  // }
+  // newComp.id = 12;
+  return newComp;
+}
+
+const comp = addComponent({ x: Types.i8 });
+
+console.log(comp);
