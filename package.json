@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "tsnode": "tsx src/game3.ts",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest"
@@ -28,6 +29,7 @@
   },
   "homepage": "https://github.com/scrythe/Mingidrift#readme",
   "devDependencies": {
+    "@types/node": "^20.14.11",
     "@types/three": "^0.165.0",
     "typescript": "^5.5.2",
     "vite": "^5.3.1"
@@ -35,6 +37,7 @@
   "dependencies": {
     "@thyseus/rollup-plugin-thyseus": "^0.18.0",
     "three": "^0.165.0",
+    "tsx": "^4.16.2",
     "vitest": "^1.6.0"
   }
 }

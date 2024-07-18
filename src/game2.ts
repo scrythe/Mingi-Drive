@@ -10,10 +10,7 @@ export const types = {
 let currentId = 0;
 
 class ComponentClass {
-  id: number;
-  constructor() {
-    this.id = currentId++;
-  }
+  static id = 0;
 }
 
 class Name extends ComponentClass {
@@ -28,6 +25,7 @@ class Position extends ComponentClass {
 }
 
 function testCompClass(comp: typeof ComponentClass) {
+  comp.id = currentId++;
   console.log(comp);
 }
 
@@ -41,8 +39,8 @@ type OnlyStaticTypedMapValues<T> =
 
 type OnlyTypedMapValues<T extends new () => any> =
   NoId<InstanceType<T>> extends { [type: string]: Int8ArrayConstructor }
-  ? T
-  : never;
+    ? T
+    : never;
 
 type ComponentValuesMap<T extends new () => any> = OnlyStaticTypedMapValues<T> &
   OnlyTypedMapValues<T>;
