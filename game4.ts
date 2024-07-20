@@ -1,6 +1,6 @@
-const components: Component<Schema>[] = []
+const components: any[] = [];
 
-let compId = 0
+let compId = 0;
 
 const Types = {
   i8: Int8Array,
@@ -19,38 +19,37 @@ type ExtractValues<T> = T[keyof T];
 
 type Type = ExtractValues<typeof Types>;
 
-type ObjectType = { [type: string]: Type }
+type ObjectType = { [type: string]: Type };
+
+type Component<T extends Schema> = T extends Type
+  ? InstanceType<T>
+  : { [K in keyof T]: T[K] extends Schema ? Component<T[K]> : never };
 
 type Schema = Type | ObjectType;
 
-type Component<T extends Schema> = T extends Type
-  ? { id: number; value: T }
-  : { [K in keyof T]: T[K] extends Schema ? Component<T[K]> : unknown };
-
-
-function addComponent<T extends Schema>(comp: T): Component<T> {
-  if (Object.getPrototypeOf(comp).name) {
-    const newComp = { id: compId++, value: comp } as Component<T>
-    components.push(newComp)
-    return newComp
-  }
-  for (const key in comp) {
-    const newBla = { id: compId++, value: comp[key] }
+function addComponent<T extends Schema>(
+  component: T,
+  length: number,
+): Component<T> {
+  if (Object.getPrototypeOf(component).name) {
     // @ts-ignore
-    comp[key] = newBla
+    component.id = compId++;
+    components.push(component);
     // @ts-ignore
-    components.push(comp[key])
+    return component;
   }
-  return comp as Component<T>
+  for (const key in component) {
+    // @ts-ignore
+    component[key] = new component[key](length);
+    // @ts-ignore
+    component[key].id = compId++;
+    components.push(component[key]);
+  }
+  // @ts-ignore
+  return component;
 }
 
-// function getComponent<T extends Component<Schema>>(comp) {
-//
-// }
+addComponent({ x: Types.i8, y: Types.i8 }, 10);
+addComponent(Types.i8, 5);
 
-addComponent({ x: Types.i8, y: Types.i8 });
-addComponent(Types.i8);
-
-console.log(components)
-
-
+console.log(components);
