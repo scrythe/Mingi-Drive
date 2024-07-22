@@ -1,13 +1,8 @@
-// export const Types = {
-//   i8: "i8",
-//   u8: "u8",
-//   i16: "i16",
-//   u16: "u16",
-//   i32: "i32",
-//   u32: "u32",
-// } as const;
+const components: any[] = [];
 
-export const Types = {
+let compId = 0;
+
+const Types = {
   i8: Int8Array,
   u8: Uint8Array,
   i16: Int16Array,
@@ -16,49 +11,45 @@ export const Types = {
   u32: Uint16Array,
 };
 
-type ExtractValues<T> = { [K in keyof T]: T[K] }[keyof T];
+type ExtractValues<T> = T[keyof T];
 
-// type Mutable<T> = { -readonly [K in keyof T]: T[K] };
+// type Mutable<T> = { readonly [K in keyof T]: T[K] };
 
 // type Prettify<T> = { [K in keyof T]: T[K] };
 
 type Type = ExtractValues<typeof Types>;
 
-// type TypeMap = {
-//   i8: Int8Array; // Constructor?
-//   u8: Uint8Array;
-//   i16: Int16Array;
-//   u16: Uint16Array;
-//   i32: Int16Array;
-//   u32: Uint16Array;
-// };
-
-type Schema = Type | { [type: string]: Type };
+type ObjectType = { [type: string]: Type };
 
 type Component<T extends Schema> = T extends Type
-  ? { id: number; value: T }
-  : { [K in keyof T]: T[K] extends Schema ? Component<T[K]> : unknown };
+  ? InstanceType<T>
+  : { [K in keyof T]: T[K] extends Schema ? Component<T[K]> : never };
 
-function isTypedArray(comp: Schema): comp is Type {
-  return Object.getPrototypeOf(comp).name == "TypedArray";
-}
+type Schema = Type | ObjectType;
 
-function addComponent<T extends Schema>(comp: T): Component<T> {
-  const newComp = comp as unknown as Component<T>;
-  if (isTypedArray(comp)) {
-    console.log(comp);
+function addComponent<T extends Schema>(
+  component: T,
+  length: number,
+): Component<T> {
+  if (Object.getPrototypeOf(component).name) {
+    // @ts-ignore
+    component.id = compId++;
+    components.push(component);
+    // @ts-ignore
+    return component;
   }
-  // if (comp.name) comp is Types {
-  // console.log(comp.name);
-  // if (comp in Types) { }
-
-  // const newComp={
-  //
-  // }
-  // newComp.id = 12;
-  return newComp;
+  for (const key in component) {
+    // @ts-ignore
+    component[key] = new component[key](length);
+    // @ts-ignore
+    component[key].id = compId++;
+    components.push(component[key]);
+  }
+  // @ts-ignore
+  return component;
 }
 
-const comp = addComponent({ x: Types.i8 });
+addComponent({ x: Types.i8, y: Types.i8 }, 10);
+addComponent(Types.i8, 5);
 
-console.log(comp);
+console.log(components);
