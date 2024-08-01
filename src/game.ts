@@ -3,7 +3,7 @@
 //   componentType: string;
 // };
 
-const components: any[] = [];
+const components: Component<Type>[] = [];
 // const entity: Entity[] = [];
 
 let archeId = 0;
@@ -51,6 +51,7 @@ function addComponent<T extends Schema>(
   if (component.length) {
     // @ts-ignore
     component.id = compId++;
+    // @ts-ignore
     components.push(component);
     // @ts-ignore
     return component;
@@ -60,6 +61,7 @@ function addComponent<T extends Schema>(
     component[key] = new component[key](length);
     // @ts-ignore
     component[key].id = compId++;
+    // @ts-ignore
     components.push(component[key]);
   }
   // @ts-ignore
@@ -69,15 +71,20 @@ function addComponent<T extends Schema>(
 const pos = addComponent({ x: Types.i8, y: Types.i8 }, 10);
 // const strength = addComponent(Types.i8, 5);
 
-function createArcheType(...components: Component<Schema>[]) {
+function createArcheType(components: Component<Schema>[]) {
   const componentIds: number[] = [];
-  for (let componentId = 0; componentId < components.length; componentId++) {
-    const component = components[componentId];
+  // @ts-ignore
+  for (const componentKey in components) {
+    const component = components[componentKey];
+    console.log(components);
     // @ts-ignore
-    const id = component.id as number; //| undefined
-    // if (!id) {
-    //   console.log(createArcheType(component));
-    // }
+    const id = component.id as number | undefined;
+    // console.log(component);
+    if (!id) {
+      // @ts-ignore
+      const result = createArcheType(component);
+      // console.log(result);
+    }
     componentIds.push(id);
   }
   const archeType = { archeId: archeId++, componentIds };
@@ -85,8 +92,8 @@ function createArcheType(...components: Component<Schema>[]) {
   return archeType;
 }
 
-const archeType = createArcheType(pos);
-console.log(archeType.componentIds);
+const archeType = createArcheType([pos]);
+// console.log(archeType.componentIds);
 
 // function addEntity() {}
 
