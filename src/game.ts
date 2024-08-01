@@ -1,165 +1,93 @@
-import "./style.css";
-import * as THREE from "three";
+// type Entity = {
+//   id: number;
+//   componentType: string;
+// };
 
-type QueryFunction = (
-  query: string,
-  ...componentTypes: (typeof Component)[]
-) => void;
+const components: any[] = [];
+// const entity: Entity[] = [];
 
-class Component { }
+let archeId = 0;
+const archeTypes: ArcheType[] = [];
 
-type ComponentConstructor = new () => Component;
+type ArcheType = { archeId: number; componentIds: number[] };
 
-// type Acessors = object | object[];
+let compId = 0;
 
-// type QueryIterator<A extends Acessors> = A extends any[]
-//   ? {
-//     [I in keyof A]: A[I];
-//   }
-//   : A;
-
-type InstanceList<T extends (abstract new (...args: any) => any)[]> = {
-  [I in keyof T]: InstanceType<T[I]>;
+const Types = {
+  i8: Int8Array,
+  u8: Uint8Array,
+  i16: Int16Array,
+  u16: Uint16Array,
+  i32: Int16Array,
+  u32: Uint16Array,
 };
 
-// type hmtest = [typeof Person, typeof Name];
-//
-// type test2 = InstaceList<hmtest>
+type ExtractValues<T> = T[keyof T];
 
-// type IteratorItem<T> = I extends Mut<infer X> ? X : Readonly<I>;
+// type Mutable<T> = { readonly [K in keyof T]: T[K] };
 
-// type Iteratored = Iterator<[Person, Name]>
+// type Prettify<T> = { [K in keyof T]: T[K] };
 
-class Entity {
-  components: Map<string, Component>;
+type Type = ExtractValues<typeof Types>;
 
-  constructor() {
-    this.components = new Map();
+// type InstanceTypes = InstanceType<Type> & { id: number };
+
+// type InstanceTypess<T extends Type> = T extends new () => infer R
+//   ? R & { id: number }
+//   : any;
+
+type ObjectType = { [type: string]: Type };
+
+type Component<T extends Schema> = T extends Type
+  ? InstanceType<T>
+  : { [K in keyof T]: T[K] extends Schema ? Component<T[K]> : never };
+
+type Schema = Type | ObjectType;
+
+function addComponent<T extends Schema>(
+  component: T,
+  length: number,
+): Component<T> {
+  if (component.length) {
+    // @ts-ignore
+    component.id = compId++;
+    components.push(component);
+    // @ts-ignore
+    return component;
   }
-
-  addComponent(component: Component) {
-    const componentType = component.constructor.name;
-    this.components.set(componentType, component);
+  for (const key in component) {
+    // @ts-ignore
+    component[key] = new component[key](length);
+    // @ts-ignore
+    component[key].id = compId++;
+    components.push(component[key]);
   }
-
-  getComponent<T extends typeof Component>(componentType: T) {
-    return this.components.get(componentType.name) as
-      | InstanceType<T>
-      | undefined;
-  }
+  // @ts-ignore
+  return component;
 }
 
-class App {
-  scene: THREE.Scene;
-  camera: THREE.Camera;
-  renderer: THREE.WebGLRenderer;
-  systems: QueryFunction[];
-  entities: Entity[];
+const pos = addComponent({ x: Types.i8, y: Types.i8 }, 10);
+// const strength = addComponent(Types.i8, 5);
 
-  constructor() {
-    this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(
-      75,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      1000,
-    );
-    this.renderer = new THREE.WebGLRenderer();
-    this.systems = [];
-    this.entities = [];
-
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    // this.renderer.setAnimationLoop(() => this.update());
-    document.body.appendChild(this.renderer.domElement);
-  }
-
-  update() {
-    // for (const system of this.systems) {
-    //   system("hm");
+function createArcheType(...components: Component<Schema>[]) {
+  const componentIds: number[] = [];
+  for (let componentId = 0; componentId < components.length; componentId++) {
+    const component = components[componentId];
+    // @ts-ignore
+    const id = component.id as number; //| undefined
+    // if (!id) {
+    //   console.log(createArcheType(component));
     // }
-    // for (const entity of this.entities) {
-    //   for (const component of entity.components.values()) {
-    //     console.log(component);
-    //   }
-    // }
-    this.renderer.render(this.scene, this.camera);
+    componentIds.push(id);
   }
-
-  render() {
-    this.renderer.render(this.scene, this.camera);
-  }
-
-  addSystem(system: QueryFunction) {
-    this.systems.push(system);
-  }
-
-  addEntity(entity: Entity) {
-    this.entities.push(entity);
-  }
-
-  addObject(cube: THREE.Mesh) {
-    this.scene.add(cube);
-  }
-
-  query<T extends ComponentConstructor[]>(componentTypes: T) {
-    const queryArr: InstanceList<T>[] = [];
-    for (const entity of this.entities) {
-      const componentArr: InstanceList<T> = [] as InstanceList<T>;
-      for (const componentType of componentTypes) {
-        const component = entity.getComponent(componentType);
-        if (!component) continue;
-        componentArr.push(component);
-      }
-      queryArr.push(componentArr);
-    }
-    return queryArr;
-  }
+  const archeType = { archeId: archeId++, componentIds };
+  archeTypes.push(archeType);
+  return archeType;
 }
 
-class Person {
-  test = "hm";
-}
+const archeType = createArcheType(pos);
+console.log(archeType.componentIds);
 
-class Name {
-  hmm = "wow";
-}
+// function addEntity() {}
 
-function main() {
-  const app = new App();
-  app.addSystem(() => {
-    const list = app.query([Person, Name]);
-    console.log(list);
-  });
-  (() => {
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    const cube = new THREE.Mesh(geometry, material);
-    app.addObject(cube);
-  })();
-  const newEntity = new Entity();
-  newEntity.addComponent(new Person());
-  newEntity.addComponent(new Name());
-  app.addEntity(newEntity);
-  // gameLoop(app.update, app.render);
-}
-
-// function gameLoop(integrate: Function, render: Function) {
-//   let prevTime = performance.now();
-//   const fps = 60;
-//   const dt = 1000 / fps;
-//   let accumulater = 0;
-//   const update = (currentTime: number) => {
-//     const frameTime = currentTime - prevTime;
-//     prevTime = currentTime;
-//     accumulater += frameTime;
-//     while (accumulater >= dt) {
-//       integrate();
-//       accumulater -= dt;
-//     }
-//     render();
-//     requestAnimationFrame(update);
-//   };
-//   requestAnimationFrame(update);
-// }
-
-main();
+// console.log(components);
