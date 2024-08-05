@@ -6,11 +6,6 @@
   ],
   "version": "1.0.0",
   "description": "pixel 3d threejs javascript socket multiplayer car game with device orientation",
-  "module": "index.ts",
-  "type": "module",
-  "scripts": {
-    "dev": "vite"
-  },
   "keywords": [
     "pixel",
     "3d",
