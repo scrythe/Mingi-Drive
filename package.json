@@ -1,15 +1,15 @@
 {
   "name": "mingidrift",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "version": "1.0.0",
   "description": "pixel 3d threejs javascript socket multiplayer car game with device orientation",
+  "module": "index.ts",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "tsnode": "tsx src/game4.ts",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "test": "vitest"
+    "dev": "vite"
   },
   "keywords": [
     "pixel",
@@ -29,15 +29,9 @@
   },
   "homepage": "https://github.com/scrythe/Mingidrift#readme",
   "devDependencies": {
-    "@types/node": "^20.14.11",
-    "@types/three": "^0.165.0",
-    "typescript": "^5.5.2",
-    "vite": "^5.3.1"
+    "@types/bun": "latest"
   },
-  "dependencies": {
-    "@thyseus/rollup-plugin-thyseus": "^0.18.0",
-    "three": "^0.165.0",
-    "tsx": "^4.16.5",
-    "vitest": "^1.6.0"
+  "peerDependencies": {
+    "typescript": "^5.0.0"
   }
 }

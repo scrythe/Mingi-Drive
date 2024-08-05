@@ -1,0 +1,14 @@
+.status {
+  color: white;
+  padding: 1.4em;
+  /* margin-bottom: 20px; */
+  align-self: flex-end;
+}
+
+.online {
+  background: green;
+}
+
+.offline {
+  background: red;
+}
