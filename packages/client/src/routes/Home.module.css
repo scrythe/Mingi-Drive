@@ -27,8 +27,23 @@ input.gamePin {
 h1.header {
   font-size: 2.5em;
 }
-
-
-/* input.gameId:focus-visible { */
-/*   border: 1px solid white; */
+/* a.joinGame { */
+/*   border-radius: 8px; */
+/*   padding: 0.6em 1.2em; */
+/*   font-weight: 500; */
+/*   color: #e1e2e3; */
+/*   background-color: #49515a; */
+/*   text-decoration: none; */
 /* } */
+
+a.createGame {
+  margin-bottom: 0.5em;
+  width: 10em;
+}
+
+nav.gameNav {
+  margin-top: 1em;
+  display: flex;
+  flex-direction: column;
+  font-size: 1.1em;
+}

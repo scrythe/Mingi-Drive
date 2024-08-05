@@ -6,6 +6,7 @@ import "./index.css";
 import App from "./App";
 
 import GamePin from "./routes/GamePin";
+import Home from "./routes/Home";
 
 const root = document.getElementById("root");
 
@@ -19,8 +20,9 @@ render(
   () => (
     <App>
       <Router>
-        <Route path="/" component={GamePin} />
+        <Route path="/" component={Home} />
         <Route path="/gamepin" component={GamePin} />
+        // <Route path="/login" component={Home} />
       </Router>
     </App>
   ),

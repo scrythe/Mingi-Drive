@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite --host",
     "build": "bunx --bun vite build",
-    "serve": "bunx --bun vite preview"
+    "serve": "vite preview"
   },
   "devDependencies": {
     "solid-devtools": "^0.29.2",

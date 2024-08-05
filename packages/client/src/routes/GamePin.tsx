@@ -8,7 +8,7 @@ const App: Component = () => {
   };
   return (
     <div class={styles.App}>
-      <h1>Mingidrift</h1>
+      <h1 class={styles.header}>Mingidrift</h1>
       <form class={styles.gameForm} onSubmit={sendPin}>
         <input
           class={styles.gamePin}
