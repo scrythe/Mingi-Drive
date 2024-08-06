@@ -1,18 +1,9 @@
 {
-  "name": "backend",
-  "description": "client-side/frontend code",
-  "scripts": {
-    "dev": "vite --host",
-    "build": "bunx --bun vite build",
-    "serve": "vite preview"
-  },
+  "name": "server",
+  "description": "server code",
   "type": "module",
-  "dependencies": {
-    "@neondatabase/serverless": "^0.9.4",
-    "dotenv": "^16.4.5",
-    "drizzle-orm": "^0.32.2"
-  },
-  "devDependencies": {
-    "drizzle-kit": "^0.23.2"
+  "scripts": {
+    "dev": "bun --watch run src/index.ts",
+    "build": "bun build src/index.ts --outdir ./build"
   }
 }

@@ -1,11 +1,15 @@
 {
   "name": "mingidrift",
-  "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
   "version": "1.0.0",
+  "author": "Magomed Alimkhanov",
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "bugs": {
+    "url": "https://github.com/scrythe/Mingidrift/issues"
+  },
   "description": "pixel 3d threejs javascript socket multiplayer car game with device orientation",
+  "homepage": "https://github.com/scrythe/Mingidrift#readme",
   "keywords": [
     "pixel",
     "3d",
@@ -17,16 +21,9 @@
     "game",
     "device orientation"
   ],
-  "author": "Magomed Alimkhanov",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/scrythe/Mingidrift/issues"
-  },
-  "homepage": "https://github.com/scrythe/Mingidrift#readme",
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
-  }
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ]
 }
