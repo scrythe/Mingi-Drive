@@ -1,23 +1,20 @@
-interface RegisterReq {
-  username?: string;
-  password?: string;
-  email?: string;
-}
+import { z } from "zod";
+import { zValidator } from "@hono/zod-validator";
+import { Hono } from "hono";
 
-function register({ username, password, email }: RegisterReq) {
-  if (!username || !password || !email)
-    return Response.json("Fill in all fields");
-  return Response.json({ });
-}
+const app = new Hono();
 
-Bun.serve({
-  async fetch(req) {
-    const path = new URL(req.url).pathname;
-    const method = req.method;
-    const data = await req.json();
-
-    if (method == "POST" && path == "/register") return register(data as RegisterReq);
-
-    return Response.json("Server does not exist");
-  },
+const registerSchema = z.object({
+  username: z.string(),
+  password: z.string(),
+  email: z.string(),
 });
+
+app.post("/register", zValidator("json", registerSchema), (c) => {
+  const data = c.req.valid("json");
+  return c.json(data);
+});
+
+app.all("*", (c) => c.json("Website does not exist", 404));
+
+export default app;
