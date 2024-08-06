@@ -2,10 +2,13 @@ import type { Component } from "solid-js";
 
 import styles from "./Register.module.css";
 import Form from "../components/Form";
+import { client } from "../components/Hono";
 
 const App: Component = () => {
-  const register = (event: Event) => {
+  const register = async (event: Event) => {
     event.preventDefault();
+    const res = await client.register.$post({ json: { username: "hmmm", password: "hm", email: "email" } })
+    console.log(res)
   };
   return (
     <main class={styles.App}>

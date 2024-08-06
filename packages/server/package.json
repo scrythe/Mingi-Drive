@@ -1,10 +1,11 @@
 {
   "name": "server",
-  "description": "server code",
   "type": "module",
+  "main": "src/index.ts",
+  "description": "server code",
   "scripts": {
     "dev": "bun --watch run src/index.ts",
-    "build": "bun build src/index.ts --outdir ./build"
+    "build": "bun build src/index.ts --outdir ./build",
   },
   "dependencies": {
     "@hono/zod-validator": "^0.2.2",
