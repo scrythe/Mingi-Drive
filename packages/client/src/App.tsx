@@ -1,18 +1,28 @@
 import { createSignal, createMemo, Component, JSX } from "solid-js";
+import user from "./assets/user-solid.svg";
 import styles from "./App.module.css";
+import { A, RouteSectionProps } from "@solidjs/router";
 
-const App: Component<{ children: JSX.Element }> = (props) => {
+const App: Component<RouteSectionProps> = (props) => {
   const [getStatus, setStatus] = createSignal(navigator.onLine);
-  const getStatusString = createMemo(() =>
-    getStatus() ? "online" : "offline",
-  );
+  // const getStatusString = createMemo(() =>
+  //   getStatus() ? "online" : "offline",
+  // );
   window.addEventListener("offline", () => setStatus(false));
   window.addEventListener("online", () => setStatus(true));
   return (
-    <>
-      <div class={`${styles.status} ${styles[getStatusString()]}`}></div>
+    <div class={styles.App}>
+      {/* <div class={`${styles.status} ${styles[getStatusString()]}`}></div>;*/}
+      <div class={styles.user}>
+        <img src={user} alt="logo" />
+        <A href="/">
+          Create
+          <br />
+          Account
+        </A>
+      </div>
       {props.children}
-    </>
+    </div>
   );
 };
 

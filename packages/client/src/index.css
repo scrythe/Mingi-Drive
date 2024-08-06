@@ -14,6 +14,11 @@ div#root {
   height: 100%;
 }
 
+#root {
+  display: flex;
+  flex-direction: column;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
@@ -42,5 +47,12 @@ button {
 }
 
 button:hover {
-  background-color: #373D43;;
+  background-color: #373d43;
+}
+
+a {
+  text-decoration: none;
+  color: #00eaff;
+  font-size: 1.2em;
+  text-align: center;
 }

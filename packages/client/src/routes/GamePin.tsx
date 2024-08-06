@@ -7,7 +7,7 @@ const App: Component = () => {
     event.preventDefault();
   };
   return (
-    <div class={styles.App}>
+    <main class={styles.App}>
       <h1 class={styles.header}>Mingidrift</h1>
       <form class={styles.gameForm} onSubmit={sendPin}>
         <input
@@ -19,7 +19,7 @@ const App: Component = () => {
         />
         <button type="submit">Submit</button>
       </form>
-    </div>
+    </main>
   );
 };
 

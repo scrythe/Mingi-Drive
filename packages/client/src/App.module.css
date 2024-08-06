@@ -1,7 +1,24 @@
+div.App {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1.1em;
+}
+
+div.App main {
+  margin: auto;
+  margin-top: 6em;
+}
+
+div.App h1 {
+  font-size: 2.5em;
+  text-align: center;
+}
+
 .status {
   color: white;
   padding: 1.4em;
-  /* margin-bottom: 20px; */
   align-self: flex-end;
 }
 
@@ -11,4 +28,18 @@
 
 .offline {
   background: red;
+}
+
+div.user {
+  align-self: end;
+  display: flex;
+  flex-direction: column;
+}
+
+div.user img {
+  height: 4.5em;
+  background-color: #49515a;
+  padding: 0.8em;
+  border-radius: 1em;
+  margin-bottom: 0.5em;
 }
