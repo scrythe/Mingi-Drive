@@ -7,6 +7,7 @@ import App from "./App";
 
 import GamePin from "./routes/GamePin";
 import Home from "./routes/Home";
+import Register from "./routes/Register";
 
 const root = document.getElementById("root");
 
@@ -21,6 +22,7 @@ render(
     <Router root={App}>
       <Route path="/" component={Home} />
       <Route path="/gamepin" component={GamePin} />
+      <Route path="/register" component={Register} />
       // <Route path="/login" component={Home} />
     </Router>
   ),

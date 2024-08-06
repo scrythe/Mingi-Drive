@@ -1,0 +1,13 @@
+form.form {
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  margin-top: 1em;
+  padding: 1em;
+  background-color: #f6f6f6;
+}
+
+form.form input {
+  text-align: center;
+  margin-bottom: 1em;
+}

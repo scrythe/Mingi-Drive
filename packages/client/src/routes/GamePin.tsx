@@ -1,5 +1,6 @@
 import type { Component } from "solid-js";
 
+import Form from "../components/Form";
 import styles from "./GamePin.module.css";
 
 const App: Component = () => {
@@ -8,17 +9,15 @@ const App: Component = () => {
   };
   return (
     <main class={styles.App}>
-      <h1 class={styles.header}>Mingidrift</h1>
-      <form class={styles.gameForm} onSubmit={sendPin}>
+      <Form onSubmit={sendPin}>
         <input
-          class={styles.gamePin}
           type="text"
           name="gamePin"
           value=""
           placeholder="Game Pin"
         />
         <button type="submit">Submit</button>
-      </form>
+      </Form>
     </main>
   );
 };

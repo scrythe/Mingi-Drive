@@ -50,6 +50,13 @@ button:hover {
   background-color: #373d43;
 }
 
+input {
+  text-align: center;
+  background-color: #f6f6f6;
+  color: #49515a;
+  border-color: #49515a;
+}
+
 a {
   text-decoration: none;
   color: #00eaff;
