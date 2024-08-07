@@ -3,8 +3,10 @@ import { Component } from "solid-js";
 import user from "./assets/user-solid.svg";
 import styles from "./App.module.css";
 import { A, RouteSectionProps } from "@solidjs/router";
+import { client } from "./components/Hono";
 
 const App: Component<RouteSectionProps> = (props) => {
+  client["signed-cookie"].$get()
   // const [getStatus, setStatus] = createSignal(navigator.onLine);
   // const getStatusString = createMemo(() =>
   //   getStatus() ? "online" : "offline",
