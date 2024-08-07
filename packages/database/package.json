@@ -2,15 +2,17 @@
   "name": "database",
   "description": "database code",
   "scripts": {
-    "dev": "vite --host",
-    "build": "bunx --bun vite build",
-    "serve": "vite preview"
+    "dev": "bun run src/index.ts",
+    "generate": "bunx drizzle-kit generate",
+    "migrate": "bunx drizzle-kit migrate",
+    "studio": "bunx drizzle-kit studio"
   },
   "type": "module",
   "dependencies": {
     "@neondatabase/serverless": "^0.9.4",
     "dotenv": "^16.4.5",
-    "drizzle-orm": "^0.32.2"
+    "drizzle-orm": "^0.32.2",
+    "postgres": "^3.4.4"
   },
   "devDependencies": {
     "drizzle-kit": "^0.23.2"
