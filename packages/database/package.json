@@ -1,13 +1,13 @@
 {
   "name": "database",
+  "type": "module",
+  "main": "src/index.ts",
   "description": "database code",
   "scripts": {
-    "dev": "bun run src/index.ts",
     "generate": "bunx drizzle-kit generate",
     "migrate": "bunx drizzle-kit migrate",
     "studio": "bunx drizzle-kit studio"
   },
-  "type": "module",
   "dependencies": {
     "@neondatabase/serverless": "^0.9.4",
     "dotenv": "^16.4.5",
