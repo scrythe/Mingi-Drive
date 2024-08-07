@@ -2,7 +2,7 @@ import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { db, usersTable } from "database";
+import { sql, db, usersTable } from "database";
 
 const app = new Hono();
 app.use("*", cors());
@@ -17,14 +17,35 @@ const registerSchema = z.object({
   email: z.string(),
 });
 
+async function usernameExists(username: string) {
+  const userExist = await db
+    .select()
+    .from(usersTable)
+    .where(sql`${usersTable.username}=${username}`);
+  return userExist.length;
+}
+
+async function emailExists(email: string) {
+  const userExist = await db
+    .select()
+    .from(usersTable)
+    .where(sql`${usersTable.email}=${email}`);
+  return userExist.length;
+}
+
 const route = app.post(
   "/register",
   zValidator("json", registerSchema),
   async (c) => {
-    const data = c.req.valid("json");
-    const users = await getUsers()
-    console.log(users)
-    return c.json(data);
+    const { username, password, email } = c.req.valid("json");
+    if (await usernameExists(username))
+      return c.json("username already exists");
+    if (await emailExists(email)) return c.json("email already exists");
+    const hashedPassword = await Bun.password.hash(password);
+    const res = await db
+      .insert(usersTable)
+      .values({ username, password: hashedPassword, email });
+    return c.json(res);
   },
 );
 

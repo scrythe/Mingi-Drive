@@ -10,7 +10,7 @@ export function getUserById(id: SelectUser['id']): Promise<
     email: string;
   }>
 > {
-  return db.select().from(usersTable).where(eq(usersTable.id, id));
+  // return db.select().from(usersTable).where();
 }
 
 export function getUsers() { return db.select().from(usersTable) }

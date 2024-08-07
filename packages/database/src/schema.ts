@@ -4,7 +4,7 @@ export const usersTable = pgTable("users_table", {
   id: serial("id").primaryKey(),
   username: varchar("username", { length: 15 }).notNull().unique(),
   email: varchar("email", { length: 60 }).notNull().unique(),
-  password: varchar("password", { length: 60 }).notNull(),
+  password: varchar("password", { length: 150 }).notNull(),
 });
 
 export type InsertUser = typeof usersTable.$inferInsert;
