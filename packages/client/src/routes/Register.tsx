@@ -3,10 +3,12 @@ import type { Component } from "solid-js";
 import styles from "./Register.module.css";
 import Form, { lastInputClass } from "../components/Form";
 import { client } from "../components/Hono";
+import { useNavigate } from "@solidjs/router";
 
 const App: Component = () => {
   let formRef: HTMLFormElement;
   let pRef: HTMLParagraphElement;
+  const navigate = useNavigate();
   const register = async (event: Event) => {
     event.preventDefault();
     const username = formRef.username.value;
@@ -18,8 +20,11 @@ const App: Component = () => {
       },
       { init: { credentials: "include" } },
     );
-    pRef.innerHTML = await res.json();
+    const message = await res.json();
+    pRef.innerHTML = message;
     pRef.style.display = "block";
+    if (message == "created user successfully") return;
+    navigate("/");
   };
   return (
     <main class={styles.App}>

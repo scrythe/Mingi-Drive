@@ -122,6 +122,11 @@ const route = app
     if (!session || !session.get("username")) return c.json("no session");
     deleteSession(c, session.id);
     return c.json("succesfully logged out");
+  })
+  .get("/session", (c) => {
+    const session = c.get("session");
+    if (session && session.get("username")) return c.json(true);
+    return c.json(false);
   });
 
 app.all("*", (c) => c.json("website not found", 404));

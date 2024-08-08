@@ -8,6 +8,7 @@ import App from "./App";
 import GamePin from "./routes/GamePin";
 import Home from "./routes/Home";
 import Register from "./routes/Register";
+import Logout from "./routes/Logout";
 
 const root = document.getElementById("root");
 
@@ -23,6 +24,7 @@ render(
       <Route path="/" component={Home} />
       <Route path="/gamepin" component={GamePin} />
       <Route path="/register" component={Register} />
+      <Route path="/logout" component={Logout} />
       // <Route path="/login" component={Home} />
     </Router>
   ),
