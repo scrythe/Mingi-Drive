@@ -2,7 +2,7 @@ import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import sessionMiddleware, { type Session } from "./session";
+import sessionMiddleware, { createSession, type Session } from "./session";
 import { createConnection } from "mysql2/promise";
 
 const connection = await createConnection({
@@ -60,7 +60,8 @@ async function sql<T>(sql: string, values: any) {
 const route = app
   .post("register", zValidator("json", registerSchema), async (c) => {
     const session = c.get("session");
-    if (session.get("username")) return c.json("already created an account");
+    if (session && session.get("username"))
+      return c.json("already created an account");
     const { username, password, email } = c.req.valid("json");
     const [error, data] = await userExists(username, email);
     if (error) return c.json(data, 400);
@@ -70,12 +71,12 @@ const route = app
       [username, hashedPassword, email],
     );
     if (!res) return c.json("could not create user", 400);
-    session.set("username", username);
+    await createSession(c, { username });
     return c.json("created user successfully");
   })
   .post("/login", zValidator("json", loginSchema), async (c) => {
     const session = c.get("session");
-    if (session.get("username")) return c.json("already logged in");
+    if (session && session.get("username")) return c.json("already logged in");
     const { username, password } = c.req.valid("json");
     const res = await sql<{
       username: string;
@@ -88,9 +89,15 @@ const route = app
     if (!user) return c.json("user does not exist");
     const isPassword = await Bun.password.verify(password, user.password);
     if (!isPassword) return c.json("wrong password");
-    session.set("username", username);
+    await createSession(c, { username });
     return c.json(isPassword);
-  });
+  })
+  // .post("/logout", (c) => {
+    // const session = c.get("session");
+    // if (!session.get("username")) return c.json("no session");
+    // session.delete = true;
+  //   return c.json("succesfully logged out");
+  // });
 
 app.all("*", (c) => c.json("website not found", 404));
 

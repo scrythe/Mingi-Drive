@@ -11,11 +11,12 @@ db.query(
   "CREATE TABLE sessions (id INTEGER PRIMARY KEY, token TEXT, data TEXT);",
 ).run();
 
-async function createSession() {
-  const changes = db
+export async function createSession(c: Context, data={}) {
+  const token = crypto.randomUUID();
+  const { lastInsertRowid: id } = db
     .query("INSERT INTO sessions (token, data) VALUES (?1, ?2);")
-    .run("", "");
-  return changes.lastInsertRowid;
+    .run(token, JSON.stringify(data));
+  await saveCookie(c, id, token);
 }
 
 async function getSession(c: Context) {
@@ -47,6 +48,10 @@ async function updateData(
     id,
   );
 }
+
+// async function deleteSession(id: number | bigint) {
+//   db.query("DELETE FROM sessions WHERE WHERE id = ?1").run(id);
+// }
 
 async function saveCookie(c: Context, id: number | bigint, token: string) {
   const data = { id, token };
@@ -83,21 +88,17 @@ export class Session {
 
 const sessionMiddleware = createMiddleware(async (c, next) => {
   const sessionRes = await getSession(c);
-  let id: number | bigint = 0;
-  let data = {};
-  if (sessionRes == false) {
-    id = await createSession();
-  } else {
-    id = sessionRes.id;
-    data = sessionRes.data;
-  }
+  if (sessionRes == false) return next();
+  const { id, data } = sessionRes;
   const token = crypto.randomUUID();
-  await saveCookie(c, id, token);
 
+  await saveCookie(c, id, token);
   const session = new Session(data);
   c.set("session", session);
 
   await next();
+  console.log(db.query("SELECT * FROM sessions").all());
+  // if (session.delete) return deleteSession(id);
   updateData(session, id, token);
 });
 
