@@ -44,6 +44,11 @@ const registerSchema = z.object({
   email: z.string(),
 });
 
+const loginSchema = z.object({
+  username: z.string(),
+  password: z.string(),
+});
+
 async function sql<T>(sql: string, values: any) {
   const res = await connection
     .query(sql, values)
@@ -52,10 +57,8 @@ async function sql<T>(sql: string, values: any) {
   return res[0] as T[];
 }
 
-const route = app.post(
-  "register",
-  zValidator("json", registerSchema),
-  async (c) => {
+const route = app
+  .post("register", zValidator("json", registerSchema), async (c) => {
     const { username, password, email } = c.req.valid("json");
     const [error, data] = await userExists(username, email);
     if (error) return c.json(data, 400);
@@ -66,10 +69,29 @@ const route = app.post(
     );
     if (!res) return c.json("could not create user", 400);
     return c.json("created user successfully");
-  },
-);
+  })
+  .post("/login", zValidator("json", loginSchema), async (c) => {
+    // const session = c.get("session");
+    // const usernameSession = session.get("username");
+    // if (usernameSession) console.log(usernameSession);
+    const { username, password } = c.req.valid("json");
+    const res = await sql<{
+      username: string;
+      password: string;
+    }>("SELECT username, password FROM users WHERE (username = ?);", [
+      username,
+    ]);
+    if (!res) return c.json("server error", 400);
+    const user = res[0];
+    if (!user) return c.json("user does not exist");
+    const isPassword = await Bun.password.verify(password, user.password);
+    if (!isPassword) return c.json("wrong password");
+    // session.set("username", username);
+    // console.log(session.cache);
+    return c.json(isPassword);
+  });
 
-app.all("*", (c) => c.json(c.req.json(), 404));
+app.all("*", (c) => c.json(c.req.json("website not found"), 404));
 
 export type AppType = typeof route;
 export default {
