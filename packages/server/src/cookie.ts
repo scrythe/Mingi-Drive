@@ -12,20 +12,11 @@ db.query(
   "CREATE TABLE IF NOT EXISTS sessions (id INTEGER PRIMARY KEY, token TEXT, data TEXT);",
 ).run();
 
-async function createSession(c: Context) {
-  const token = crypto.randomUUID();
+async function createSession() {
   const changes = db
     .query("INSERT INTO sessions (token, data) VALUES (?1, ?2);")
-    .run(token, "");
-  const data = { id: changes.lastInsertRowid, token };
-  const cookie = encrypt(data);
-  await setSignedCookie(c, "session", cookie, secret, {
-    // prefix: "host",
-    httpOnly: true,
-    // maxAge: 900,
-    // expires: new Date(Date.now() + 900 * 1000),
-    sameSite: "lax",
-  });
+    .run("", "");
+  return changes.lastInsertRowid;
 }
 
 async function getSession(c: Context) {
@@ -42,19 +33,80 @@ async function getSession(c: Context) {
     >("SELECT data FROM sessions WHERE id = ?1 AND token = ?2;")
     .get(id, token);
   if (!sessionData) return false;
-  return sessionData.data;
+  return { id, data: JSON.parse(sessionData.data) };
+}
+
+async function updateData(
+  session: Session,
+  id: number | bigint,
+  token: string,
+) {
+  const dataJson = JSON.stringify(session.cache.data);
+  db.query("UPDATE sessions SET token = ?1, data = ?2 WHERE id = ?3").run(
+    token,
+    dataJson,
+    id,
+  );
+}
+
+async function saveCookie(c: Context, id: number | bigint, token: string) {
+  const data = { id, token };
+  const cookie = encrypt(data);
+  await setSignedCookie(c, "session", cookie, secret, {
+    // prefix: "host",
+    httpOnly: true,
+    // maxAge: 900,
+    // expires: new Date(Date.now() + 900 * 1000),
+    sameSite: "lax",
+  });
+}
+
+class Session {
+  cache: { data: object };
+  delete: boolean;
+
+  constructor(data: object) {
+    this.cache = {
+      data: data,
+    };
+    this.delete = false;
+  }
+  // setData(data: object) {
+  //   this.cache.data = data;
+  // }
+  get(key: string): unknown {
+    // @ts-ignore
+    return this.cache.data[key];
+  }
+  set(key: string, value: unknown) {
+    // @ts-ignore
+    this.cache.data[key] = value;
+  }
 }
 
 const middleware = createMiddleware(async (c, next) => {
-  const sessionData = await getSession(c);
-  if (sessionData == false) {
-    await createSession(c);
-    return next();
+  const sessionRes = await getSession(c);
+  let id: number | bigint = 0;
+  let data = {};
+  if (sessionRes == false) {
+    id = await createSession();
+  } else {
+    id = sessionRes.id;
+    data = sessionRes.data;
   }
-  return c.json("hmm");
-  const sessions = db.query("SELECT id, token, data FROM sessions;").all();
-  return c.json(sessionData);
-  // next()
+  const token = crypto.randomUUID();
+  await saveCookie(c, id, token);
+
+  const session = new Session(data);
+  c.set("session", session);
+
+  await next();
+  session.set("hm", "yeslol");
+  updateData(session, id, token);
+  const newData = db.query("SELECT * FROM sessions WHERE id = ?1").all(id);
+  console.log(newData);
+
+  return c.json(newData);
 });
 
 export default middleware;

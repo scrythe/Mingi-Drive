@@ -16,9 +16,9 @@ const app = new Hono<{
 }>();
 
 app.use("*", cors());
-const dbBun = new Database("./database.sqlite");
-const store = new BunSqliteStore(dbBun);
-const query = dbBun.query("SELECT * FROM sessions");
+// const dbBun = new Database("./database.sqlite");
+// const store = new BunSqliteStore(dbBun);
+// const query = dbBun.query("SELECT * FROM sessions");
 
 // app.use(
 //   "*",
@@ -86,7 +86,12 @@ const route = app
 
     // await setSignedCookie(c, "great_cookie", "blueberry", "hm");
     return c.json(session.get("counter")!);
-  }).get("/", (c) => c.json(""));
+  })
+  .get("/", (c) => {
+    const session = c.get("session");
+    // session.set("lol", "les go");
+    return c.json("hm");
+  });
 
 app.all("*", (c) => c.json(c.req.json(), 404));
 
