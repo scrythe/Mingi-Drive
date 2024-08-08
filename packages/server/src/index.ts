@@ -2,42 +2,40 @@ import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { sql, db, usersTable } from "database";
-import { Session, sessionMiddleware } from "hono-sessions";
-import { BunSqliteStore } from "hono-sessions/bun-sqlite-store";
-import { Database } from "bun:sqlite";
-import middleware from "./cookie";
+import sessionMiddleware, { type Session } from "./session";
+import { createConnection } from "mysql2/promise";
+
+const connection = await createConnection({
+  host: process.env["HOST"],
+  user: process.env["USER"],
+  password: process.env["PASSWORD"],
+  database: process.env["DATABASE"],
+});
 
 const app = new Hono<{
   Variables: {
     session: Session;
-    session_key_rotation: boolean;
   };
 }>();
 
 app.use("*", cors());
-// const dbBun = new Database("./database.sqlite");
-// const store = new BunSqliteStore(dbBun);
-// const query = dbBun.query("SELECT * FROM sessions");
+app.use("*", sessionMiddleware);
 
-// app.use(
-//   "*",
-//   sessionMiddleware({
-//     store,
-//     encryptionKey: "password_at_least_32_characters_long", // Required for CookieStore, recommended for others
-//     expireAfterSeconds: 900, // Expire session after 15 minutes of inactivity
-//     cookieOptions: {
-//       sameSite: "Lax", // Recommended for basic CSRF protection in modern browsers
-//       path: "/", // Required for this library to work properly
-//       httpOnly: true, // Recommended to avoid XSS attacks
-//     },
-//   }),
-// );
-
-app.use("*", middleware);
-
-export function getUsers() {
-  return db.select().from(usersTable);
+async function userExists(username: string, email: string) {
+  const res = await sql<{
+    username: string;
+    password: string;
+    email: string;
+  }>("SELECT username, email FROM users WHERE (username = ? OR email = ?);", [
+    username,
+    email,
+  ]);
+  if (!res) return [true, "server error"];
+  const user = res[0];
+  if (!user) return [false];
+  if (user.username == username) return [true, "username exists"];
+  if (user.email == email) return [true, "email exists"];
+  return [true, "server error"];
 }
 
 const registerSchema = z.object({
@@ -46,54 +44,35 @@ const registerSchema = z.object({
   email: z.string(),
 });
 
-async function usernameExists(username: string) {
-  const userExist = await db
-    .select()
-    .from(usersTable)
-    .where(sql`${usersTable.username}=${username}`);
-  return userExist.length;
+async function sql<T>(sql: string, values: any) {
+  const res = await connection
+    .query(sql, values)
+    .catch((err) => console.log(err));
+  if (!res) return;
+  return res[0] as T[];
 }
 
-async function emailExists(email: string) {
-  const userExist = await db
-    .select()
-    .from(usersTable)
-    .where(sql`${usersTable.email}=${email}`);
-  return userExist.length;
-}
-
-const route = app
-  .post("/register", zValidator("json", registerSchema), async (c) => {
+const route = app.post(
+  "register",
+  zValidator("json", registerSchema),
+  async (c) => {
     const { username, password, email } = c.req.valid("json");
-    if (await usernameExists(username))
-      return c.json("username already exists");
-    if (await emailExists(email)) return c.json("email already exists");
+    const [error, data] = await userExists(username, email);
+    if (error) return c.json(data, 400);
     const hashedPassword = await Bun.password.hash(password);
-    const res = await db
-      .insert(usersTable)
-      .values({ username, password: hashedPassword, email });
-    return c.json(res);
-  })
-  .get("/signed-cookie", async (c) => {
-    const session = c.get("session");
-    console.log(session.getCache());
-    if (session.get("counter")) {
-      session.set("counter", (session.get("counter") as number) + 1);
-    } else {
-      session.set("counter", 1);
-    }
-    console.log(query.run());
-
-    // await setSignedCookie(c, "great_cookie", "blueberry", "hm");
-    return c.json(session.get("counter")!);
-  })
-  .get("/", (c) => {
-    const session = c.get("session");
-    // session.set("lol", "les go");
-    return c.json("hm");
-  });
+    const res = await sql(
+      "INSERT INTO users (username, password, email) VALUES (?, ?, ?);",
+      [username, hashedPassword, email],
+    );
+    if (!res) return c.json("could not create user", 400);
+    return c.json("created user successfully");
+  },
+);
 
 app.all("*", (c) => c.json(c.req.json(), 404));
 
 export type AppType = typeof route;
-export default app;
+export default {
+  port: process.env["PORT"],
+  fetch: app.fetch,
+};

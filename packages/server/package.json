@@ -4,14 +4,17 @@
   "main": "src/index.ts",
   "description": "server code",
   "scripts": {
+    "start":"bun run dist/index.js",
     "dev": "bun --watch run src/index.ts",
-    "build": "bun build src/index.ts --outdir ./build"
+    "build": "bun build src/index.ts --outdir ./dist --target bun",
+    "deploy": "bun run build && scp -r dist awesome:mingidrift"
+
   },
   "dependencies": {
     "@hono/zod-validator": "^0.2.2",
     "database": "workspace:*",
     "hono": "^4.5.4",
-    "hono-sessions": "^0.5.8",
+    "mysql2": "^3.11.0",
     "zod": "^3.23.8"
   }
 }
