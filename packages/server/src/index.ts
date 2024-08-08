@@ -59,6 +59,8 @@ async function sql<T>(sql: string, values: any) {
 
 const route = app
   .post("register", zValidator("json", registerSchema), async (c) => {
+    const session = c.get("session");
+    if (session.get("username")) return c.json("already created an account");
     const { username, password, email } = c.req.valid("json");
     const [error, data] = await userExists(username, email);
     if (error) return c.json(data, 400);
@@ -68,12 +70,12 @@ const route = app
       [username, hashedPassword, email],
     );
     if (!res) return c.json("could not create user", 400);
+    session.set("username", username);
     return c.json("created user successfully");
   })
   .post("/login", zValidator("json", loginSchema), async (c) => {
-    // const session = c.get("session");
-    // const usernameSession = session.get("username");
-    // if (usernameSession) console.log(usernameSession);
+    const session = c.get("session");
+    if (session.get("username")) return c.json("already logged in");
     const { username, password } = c.req.valid("json");
     const res = await sql<{
       username: string;
@@ -86,12 +88,11 @@ const route = app
     if (!user) return c.json("user does not exist");
     const isPassword = await Bun.password.verify(password, user.password);
     if (!isPassword) return c.json("wrong password");
-    // session.set("username", username);
-    // console.log(session.cache);
+    session.set("username", username);
     return c.json(isPassword);
   });
 
-app.all("*", (c) => c.json(c.req.json("website not found"), 404));
+app.all("*", (c) => c.json("website not found", 404));
 
 export type AppType = typeof route;
 export default {

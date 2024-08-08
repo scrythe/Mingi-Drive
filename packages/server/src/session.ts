@@ -1,15 +1,14 @@
 // import { getCookie, setCookie } from "hono/cookie";
 import { createMiddleware } from "hono/factory";
-import { decrypt, encrypt, secret } from "./encryptino";
+import { decrypt, encrypt, secret } from "./encryption";
 import type { Context } from "hono";
 
 import { Database } from "bun:sqlite";
 import { getSignedCookie, setSignedCookie } from "hono/cookie";
-
 const db = new Database("mydb.sqlite");
+db.query("DROP TABLE  IF EXISTS sessions").run();
 db.query(
-  // "DROP TABLE sessions"
-  "CREATE TABLE IF NOT EXISTS sessions (id INTEGER PRIMARY KEY, token TEXT, data TEXT);",
+  "CREATE TABLE sessions (id INTEGER PRIMARY KEY, token TEXT, data TEXT);",
 ).run();
 
 async function createSession() {
@@ -41,7 +40,7 @@ async function updateData(
   id: number | bigint,
   token: string,
 ) {
-  const dataJson = JSON.stringify(session.cache.data);
+  const dataJson = JSON.stringify(session.data);
   db.query("UPDATE sessions SET token = ?1, data = ?2 WHERE id = ?3").run(
     token,
     dataJson,
@@ -62,13 +61,11 @@ async function saveCookie(c: Context, id: number | bigint, token: string) {
 }
 
 export class Session {
-  cache: { data: object };
+  data: object;
   delete: boolean;
 
   constructor(data: object) {
-    this.cache = {
-      data: data,
-    };
+    this.data = data;
     this.delete = false;
   }
   // setData(data: object) {
@@ -76,11 +73,11 @@ export class Session {
   // }
   get(key: string): unknown {
     // @ts-ignore
-    return this.cache.data[key];
+    return this.data[key];
   }
   set(key: string, value: unknown) {
     // @ts-ignore
-    this.cache.data[key] = value;
+    this.data[key] = value;
   }
 }
 
