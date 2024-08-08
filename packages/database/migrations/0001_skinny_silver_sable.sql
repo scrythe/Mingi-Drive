@@ -1,1 +1,0 @@
-ALTER TABLE "users_table" ALTER COLUMN "password" SET DATA TYPE varchar(150);

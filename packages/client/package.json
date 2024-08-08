@@ -4,8 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
-    "build": "bunx --bun vite build",
-    "serve": "vite preview"
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "devDependencies": {
     "server": "workspace:*",

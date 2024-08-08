@@ -13,9 +13,6 @@ export default defineConfig({
     solidPlugin(),
     basicSsl(),
   ],
-  server: {
-    port: 3000,
-  },
   build: {
     target: "esnext",
   },

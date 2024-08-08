@@ -5,30 +5,23 @@ import Form from "../components/Form";
 import { client } from "../components/Hono";
 
 const App: Component = () => {
+  let formRef: HTMLFormElement;
   const register = async (event: Event) => {
     event.preventDefault();
-    const res = await client.register.$post({ json: { username: "hmmm", password: "hm", email: "email" } })
-    console.log(res)
+    const username = formRef.username.value;
+    const password = formRef.password.value;
+    const email = formRef.email.value;
+    const res = await client.register.$post({
+      json: { username, password, email },
+    });
+    // console.log(res);
   };
   return (
     <main class={styles.App}>
-      <Form onSubmit={register}>
-        <input
-          type="text"
-          name="username"
-          value=""
-          placeholder="Username"
-        />
-        <input
-          value=""
-          placeholder="Password"
-        />
-        <input
-          type="email"
-          name="email"
-          value=""
-          placeholder="Email"
-        />
+      <Form ref={formRef!} onSubmit={register}>
+        <input type="text" name="username" value="" placeholder="Username" />
+        <input type="password" name="password" value="" placeholder="Password" />
+        <input type="email" name="email" value="" placeholder="Email" />
         <button type="submit">Submit</button>
       </Form>
     </main>

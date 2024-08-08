@@ -1,3 +1,3 @@
 import { hc } from "hono/client";
 import { AppType } from "server";
-export const client = hc<AppType>("http://localhost:3000/");
+export const client = hc<AppType>(import.meta.env.VITE_SERVER_URL);

@@ -8,7 +8,6 @@ import sessionMiddleware, {
   type Session,
 } from "./session";
 import { createConnection } from "mysql2/promise";
-import { deleteCookie } from "hono/cookie";
 
 const connection = await createConnection({
   host: process.env["HOST"],
