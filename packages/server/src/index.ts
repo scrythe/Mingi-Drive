@@ -22,10 +22,27 @@ const app = new Hono<{
   };
 }>();
 
-app.use("*", cors());
+// app.use(
+//   "*",
+//   cors({
+//     origin: "https://localhost:5173",
+//     allowMethods: ["POST", "GET", "OPTIONS"],
+//     allowHeaders: ["set-cookie"],
+//   }),
+// );
+app.use(
+  "*",
+  cors({
+    origin: "https://localhost:5173",
+    credentials: true,
+  }),
+);
 app.use("*", sessionMiddleware);
 
-async function userExists(username: string, email: string) {
+async function userExists(
+  username: string,
+  email: string,
+): Promise<[boolean, string]> {
   const res = await sql<{
     username: string;
     password: string;
@@ -36,7 +53,7 @@ async function userExists(username: string, email: string) {
   ]);
   if (!res) return [true, "server error"];
   const user = res[0];
-  if (!user) return [false];
+  if (!user) return [false, ""];
   if (user.username == username) return [true, "username exists"];
   if (user.email == email) return [true, "email exists"];
   return [true, "server error"];
@@ -66,7 +83,11 @@ const route = app
     const session = c.get("session");
     if (session && session.get("username"))
       return c.json("already created an account");
+    // return c.req.json();
     const { username, password, email } = c.req.valid("json");
+    if (!username) return c.json("empty username field");
+    if (!password) return c.json("empty password field");
+    if (!email) return c.json("empty email field");
     const [error, data] = await userExists(username, email);
     if (error) return c.json(data, 400);
     const hashedPassword = await Bun.password.hash(password);

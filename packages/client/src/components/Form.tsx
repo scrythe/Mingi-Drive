@@ -18,3 +18,4 @@ const Form: Component<{
 };
 
 export default Form;
+export const lastInputClass = styles.last;

@@ -11,3 +11,10 @@ form.form input {
   text-align: center;
   margin-bottom: 1em;
 }
+
+form.form p {
+  display: none;
+  color: black;
+  align-self: center;
+  margin-top: 1em;
+}
