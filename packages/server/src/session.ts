@@ -4,19 +4,24 @@ import { decrypt, encrypt, secret } from "./encryption";
 import type { Context } from "hono";
 
 import { Database } from "bun:sqlite";
-import { getSignedCookie, setSignedCookie } from "hono/cookie";
+import { deleteCookie, getSignedCookie, setSignedCookie } from "hono/cookie";
 const db = new Database("mydb.sqlite");
 db.query("DROP TABLE  IF EXISTS sessions").run();
 db.query(
   "CREATE TABLE sessions (id INTEGER PRIMARY KEY, token TEXT, data TEXT);",
 ).run();
 
-export async function createSession(c: Context, data={}) {
+export async function createSession(c: Context, data = {}) {
   const token = crypto.randomUUID();
   const { lastInsertRowid: id } = db
     .query("INSERT INTO sessions (token, data) VALUES (?1, ?2);")
     .run(token, JSON.stringify(data));
   await saveCookie(c, id, token);
+}
+
+export async function deleteSession(c: Context, id: number | bigint) {
+  db.query("DELETE FROM sessions WHERE (id = ?1);").run(id);
+  deleteCookie(c, "session");
 }
 
 async function getSession(c: Context) {
@@ -49,10 +54,6 @@ async function updateData(
   );
 }
 
-// async function deleteSession(id: number | bigint) {
-//   db.query("DELETE FROM sessions WHERE WHERE id = ?1").run(id);
-// }
-
 async function saveCookie(c: Context, id: number | bigint, token: string) {
   const data = { id, token };
   const cookie = encrypt(data);
@@ -67,15 +68,12 @@ async function saveCookie(c: Context, id: number | bigint, token: string) {
 
 export class Session {
   data: object;
-  delete: boolean;
+  id: number | bigint;
 
-  constructor(data: object) {
+  constructor(data: object, id: number | bigint) {
     this.data = data;
-    this.delete = false;
+    this.id = id;
   }
-  // setData(data: object) {
-  //   this.cache.data = data;
-  // }
   get(key: string): unknown {
     // @ts-ignore
     return this.data[key];
@@ -93,12 +91,11 @@ const sessionMiddleware = createMiddleware(async (c, next) => {
   const token = crypto.randomUUID();
 
   await saveCookie(c, id, token);
-  const session = new Session(data);
+  const session = new Session(data, id);
   c.set("session", session);
 
   await next();
   console.log(db.query("SELECT * FROM sessions").all());
-  // if (session.delete) return deleteSession(id);
   updateData(session, id, token);
 });
 

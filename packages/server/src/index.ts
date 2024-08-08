@@ -2,8 +2,13 @@ import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import sessionMiddleware, { createSession, type Session } from "./session";
+import sessionMiddleware, {
+  createSession,
+  deleteSession,
+  type Session,
+} from "./session";
 import { createConnection } from "mysql2/promise";
+import { deleteCookie } from "hono/cookie";
 
 const connection = await createConnection({
   host: process.env["HOST"],
@@ -14,7 +19,7 @@ const connection = await createConnection({
 
 const app = new Hono<{
   Variables: {
-    session: Session;
+    session?: Session;
   };
 }>();
 
@@ -92,12 +97,12 @@ const route = app
     await createSession(c, { username });
     return c.json(isPassword);
   })
-  // .post("/logout", (c) => {
-    // const session = c.get("session");
-    // if (!session.get("username")) return c.json("no session");
-    // session.delete = true;
-  //   return c.json("succesfully logged out");
-  // });
+  .post("/logout", (c) => {
+    const session = c.get("session");
+    if (!session || !session.get("username")) return c.json("no session");
+    deleteSession(c, session.id);
+    return c.json("succesfully logged out");
+  });
 
 app.all("*", (c) => c.json("website not found", 404));
 
