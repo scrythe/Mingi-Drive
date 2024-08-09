@@ -1,13 +1,18 @@
-import type { Component } from "solid-js";
+import { createEffect, Show, type Component } from "solid-js";
 
 // import ABtn from "../components/AnchorButton";
 import styles from "./Home.module.css";
 import { useNavigate } from "@solidjs/router";
+import { useMyContext } from "../context";
 
 const App: Component = () => {
+  const { session } = useMyContext()!;
   const navigate = useNavigate();
-  const gotoHome = (event: Event) => {
-    navigate("/gamepin")
+  const gotoHome = () => {
+    navigate("/gamepin");
+  };
+  const gotoGame = () => {
+    navigate("/game");
   };
   // const sendPin = (event: Event) => {
   //   event.preventDefault();
@@ -16,10 +21,14 @@ const App: Component = () => {
     <main class={styles.home}>
       <h1 class={styles.header}>Mingidrift</h1>
       <nav class={styles.gameNav}>
-        <button class={styles.createGame} onClick={gotoHome}>
-          Create Game
-        </button>
-        <button onClick={gotoHome}>Join Game</button>
+        <Show
+          when={!session()}
+          fallback={<button onClick={gotoGame}>Join Game</button>}
+        >
+          <button class={styles.createGame} onClick={gotoHome}>
+            Create Game
+          </button>
+        </Show>
       </nav>
     </main>
   );

@@ -7,7 +7,7 @@ import { client } from "./components/Hono";
 import { Provider, useMyContext } from "./context";
 
 const App: Component<RouteSectionProps> = (props) => {
-  const { session, setSession } = useMyContext()!;
+  const { session, setSession, showLogin } = useMyContext()!;
 
   // const [getStatus, setStatus] = createSignal(navigator.onLine);
   // const getStatusString = createMemo(() =>
@@ -29,12 +29,14 @@ const App: Component<RouteSectionProps> = (props) => {
     <Provider>
       <div class={styles.App}>
         {/* <div class={`${styles.status} ${styles[getStatusString()]}`}></div>;*/}
-        <div class={styles.user}>
-          <img src={user} alt="logo" />
-          <Show when={!session()} fallback={<A href="/logout">Logout</A>}>
-            <A href="/login">Login</A>
-          </Show>
-        </div>
+        <Show when={showLogin()}>
+          <div class={styles.user}>
+            <img src={user} alt="logo" />
+            <Show when={!session()} fallback={<A href="/logout">Logout</A>}>
+              <A href="/login">Login</A>
+            </Show>
+          </div>
+        </Show>
         {props.children}
       </div>
     </Provider>
