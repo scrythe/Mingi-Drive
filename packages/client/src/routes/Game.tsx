@@ -1,5 +1,5 @@
 import { createEffect, onMount, type Component } from "solid-js";
-import Game from "../components/game";
+import Game from "../game/game";
 
 import { useMyContext } from "../context";
 

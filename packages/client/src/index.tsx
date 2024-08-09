@@ -9,6 +9,7 @@ import App from "./App";
 import GamePin from "./routes/GamePin";
 import Home from "./routes/Home";
 import Game from "./routes/Game";
+import Debug from "./routes/Debug";
 import Login from "./routes/Login";
 import Register from "./routes/Register";
 import Logout from "./routes/Logout";
@@ -27,6 +28,7 @@ render(
       <Router root={App}>
         <Route path="/" component={Home} />
         <Route path="/game" component={Game} />
+        <Route path="/debug" component={Debug} />
         <Route path="/gamepin" component={GamePin} />
         <Route path="/register" component={Register} />
         <Route path="/logout" component={Logout} />
