@@ -103,6 +103,8 @@ const route = app
     const session = c.get("session");
     if (session && session.get("username")) return c.json("already logged in");
     const { username, password } = c.req.valid("json");
+    if (!username) return c.json("empty username field");
+    if (!password) return c.json("empty password field");
     const res = await sql<{
       username: string;
       password: string;
@@ -115,7 +117,7 @@ const route = app
     const isPassword = await Bun.password.verify(password, user.password);
     if (!isPassword) return c.json("wrong password");
     await createSession(c, { username });
-    return c.json(isPassword);
+    return c.json("successfully logged in");
   })
   .post("/logout", (c) => {
     const session = c.get("session");

@@ -14,17 +14,16 @@ const App: Component = () => {
     event.preventDefault();
     const username = formRef.username.value;
     const password = formRef.password.value;
-    const email = formRef.email.value;
-    const res = await client.register.$post(
+    const res = await client.login.$post(
       {
-        json: { username, password, email },
+        json: { username, password },
       },
       { init: { credentials: "include" } },
     );
     const message = await res.json();
     pRef.innerHTML = message;
     pRef.style.display = "block";
-    if (message != "created user successfully") return;
+    if (message != "successfully logged in") return;
     setSession(true);
     navigate("/");
   };
@@ -38,11 +37,10 @@ const App: Component = () => {
           value=""
           placeholder="Password"
         />
-        <input type="email" name="email" value="" placeholder="Email" />
         <button type="submit">Submit</button>
         <p ref={pRef!}>Username already exists</p>
       </Form>
-      <A href="/login">Alreay got an account?</A>
+      <A href="/register">Create an account?</A>
     </main>
   );
 };

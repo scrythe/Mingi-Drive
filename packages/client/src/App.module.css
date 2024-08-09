@@ -9,11 +9,17 @@ div.App {
 div.App main {
   margin: auto;
   margin-top: 6em;
+  display: flex;
+  flex-direction: column;
 }
 
 div.App h1 {
   font-size: 2.5em;
   text-align: center;
+}
+
+div.App main a {
+  margin-top: 0.5em;
 }
 
 .status {

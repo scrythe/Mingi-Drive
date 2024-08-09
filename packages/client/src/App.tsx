@@ -32,11 +32,7 @@ const App: Component<RouteSectionProps> = (props) => {
         <div class={styles.user}>
           <img src={user} alt="logo" />
           <Show when={!session()} fallback={<A href="/logout">Logout</A>}>
-            <A href="/register">
-              Create
-              <br />
-              Account
-            </A>
+            <A href="/login">Login</A>
           </Show>
         </div>
         {props.children}
