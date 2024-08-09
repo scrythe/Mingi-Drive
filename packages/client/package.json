@@ -17,6 +17,7 @@
   "dependencies": {
     "@solidjs/router": "^0.14.1",
     "@vitejs/plugin-basic-ssl": "^1.1.0",
+    "bitecs": "^0.3.40",
     "hono": "^4.5.4",
     "solid-js": "^1.8.11",
     "vite": "^5.3.5"
