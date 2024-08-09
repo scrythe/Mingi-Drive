@@ -4,8 +4,11 @@ import user from "./assets/user-solid.svg";
 import styles from "./App.module.css";
 import { A, RouteSectionProps } from "@solidjs/router";
 import { client } from "./components/Hono";
+import { Provider, useMyContext } from "./context";
 
 const App: Component<RouteSectionProps> = (props) => {
+  const { session, setSession } = useMyContext()!;
+
   // const [getStatus, setStatus] = createSignal(navigator.onLine);
   // const getStatusString = createMemo(() =>
   //   getStatus() ? "online" : "offline",
@@ -13,7 +16,6 @@ const App: Component<RouteSectionProps> = (props) => {
   // window.addEventListener("offline", () => setStatus(false));
   // window.addEventListener("online", () => setStatus(true));
 
-  const [session, setSession] = createSignal(false);
   const getSession = async () => {
     const res = await client.session.$get(
       {},
@@ -24,20 +26,22 @@ const App: Component<RouteSectionProps> = (props) => {
   getSession();
 
   return (
-    <div class={styles.App}>
-      {/* <div class={`${styles.status} ${styles[getStatusString()]}`}></div>;*/}
-      <div class={styles.user}>
-        <img src={user} alt="logo" />
-        <Show when={!session()} fallback={<A href="/logout">Logout</A>}>
-          <A href="/register">
-            Create
-            <br />
-            Account
-          </A>
-        </Show>
+    <Provider>
+      <div class={styles.App}>
+        {/* <div class={`${styles.status} ${styles[getStatusString()]}`}></div>;*/}
+        <div class={styles.user}>
+          <img src={user} alt="logo" />
+          <Show when={!session()} fallback={<A href="/logout">Logout</A>}>
+            <A href="/register">
+              Create
+              <br />
+              Account
+            </A>
+          </Show>
+        </div>
+        {props.children}
       </div>
-      {props.children}
-    </div>
+    </Provider>
   );
 };
 

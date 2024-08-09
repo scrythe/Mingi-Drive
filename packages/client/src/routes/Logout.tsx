@@ -1,12 +1,13 @@
 import type { Component } from "solid-js";
 
-// import ABtn from "../components/AnchorButton";
-import styles from "./Home.module.css";
 import { useNavigate } from "@solidjs/router";
 import { client } from "../components/Hono";
+import { useMyContext } from "../context";
 
 const App: Component = () => {
   client.logout.$post({}, { init: { credentials: "include" } });
+  const { setSession } = useMyContext()!;
+  setSession(false);
   const navigate = useNavigate();
   navigate("/");
   return <></>;

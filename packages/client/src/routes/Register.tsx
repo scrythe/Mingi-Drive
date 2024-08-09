@@ -4,11 +4,13 @@ import styles from "./Register.module.css";
 import Form, { lastInputClass } from "../components/Form";
 import { client } from "../components/Hono";
 import { useNavigate } from "@solidjs/router";
+import { useMyContext } from "../context";
 
 const App: Component = () => {
   let formRef: HTMLFormElement;
   let pRef: HTMLParagraphElement;
   const navigate = useNavigate();
+  const { setSession } = useMyContext()!;
   const register = async (event: Event) => {
     event.preventDefault();
     const username = formRef.username.value;
@@ -23,7 +25,8 @@ const App: Component = () => {
     const message = await res.json();
     pRef.innerHTML = message;
     pRef.style.display = "block";
-    if (message == "created user successfully") return;
+    if (message != "created user successfully") return;
+    setSession(true);
     navigate("/");
   };
   return (

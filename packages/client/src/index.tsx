@@ -2,6 +2,7 @@
 import { render } from "solid-js/web";
 import { Router, Route } from "@solidjs/router";
 
+import { Provider } from "./context";
 import "./index.css";
 import App from "./App";
 
@@ -20,13 +21,15 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
 
 render(
   () => (
-    <Router root={App}>
-      <Route path="/" component={Home} />
-      <Route path="/gamepin" component={GamePin} />
-      <Route path="/register" component={Register} />
-      <Route path="/logout" component={Logout} />
+    <Provider>
+      <Router root={App}>
+        <Route path="/" component={Home} />
+        <Route path="/gamepin" component={GamePin} />
+        <Route path="/register" component={Register} />
+        <Route path="/logout" component={Logout} />
       // <Route path="/login" component={Home} />
-    </Router>
+      </Router>
+    </Provider>
   ),
   root!,
 );
