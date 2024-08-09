@@ -4,11 +4,10 @@
   "main": "src/index.ts",
   "description": "server code",
   "scripts": {
-    "start":"bun run dist/index.js",
+    "start": "bun run dist/index.js",
     "dev": "bun --watch run src/index.ts",
     "build": "bun build src/index.ts --outdir ./dist --target bun",
     "deploy": "bun run build && scp -r dist awesome:mingidrift"
-
   },
   "dependencies": {
     "@hono/zod-validator": "^0.2.2",

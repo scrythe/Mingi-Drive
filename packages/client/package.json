@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
+    "buildDev": "vite build --mode development",
     "preview": "vite preview"
   },
   "devDependencies": {

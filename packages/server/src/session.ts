@@ -95,7 +95,6 @@ const sessionMiddleware = createMiddleware(async (c, next) => {
   c.set("session", session);
 
   await next();
-  console.log(db.query("SELECT * FROM sessions").all());
   updateData(session, id, token);
 });
 

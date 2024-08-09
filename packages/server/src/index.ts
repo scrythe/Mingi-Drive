@@ -33,7 +33,7 @@ const app = new Hono<{
 app.use(
   "*",
   cors({
-    origin: "https://localhost:5173",
+    origin: process.env["ORIGIN"]!,
     credentials: true,
   }),
 );
