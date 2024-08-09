@@ -1,4 +1,3 @@
-// import { getCookie, setCookie } from "hono/cookie";
 import { createMiddleware } from "hono/factory";
 import { decrypt, encrypt, secret } from "./encryption";
 import type { Context } from "hono";
@@ -25,8 +24,7 @@ export async function deleteSession(c: Context, id: number | bigint) {
 }
 
 async function getSession(c: Context) {
-  const cookie = await getSignedCookie(c, secret, "session");
-  // const cookie = await getSignedCookie(c, secret, "session", "host");
+  const cookie = await getSessionCookie(c);
   if (!cookie) return false;
   const { id, token } = decrypt(cookie);
   const sessionData = db
@@ -54,16 +52,45 @@ async function updateData(
   );
 }
 
+// Branch Prediction
+function setSessionCookieFunc() {
+  if ((process.env.NODE_ENV = "production"))
+    return (c: Context, cookie: string) => {
+      return setSignedCookie(c, "session", cookie, secret, {
+        prefix: "host",
+        httpOnly: true,
+        // maxAge: 900,
+        // expires: new Date(Date.now() + 900 * 1000),
+        sameSite: "none",
+      });
+    };
+  return (c: Context, cookie: string) => {
+    return setSignedCookie(c, "session", cookie, secret, {
+      httpOnly: true,
+      // maxAge: 900,
+      // expires: new Date(Date.now() + 900 * 1000),
+      sameSite: "lax",
+    });
+  };
+}
+
+function getSessionCookieFunc() {
+  if ((process.env.NODE_ENV = "production"))
+    return (c: Context) => {
+      return getSignedCookie(c, secret, "session", "host");
+    };
+  return (c: Context) => {
+    return getSignedCookie(c, secret, "session");
+  };
+}
+
+const setSessionCookie = setSessionCookieFunc();
+const getSessionCookie = getSessionCookieFunc();
+
 async function saveCookie(c: Context, id: number | bigint, token: string) {
   const data = { id, token };
   const cookie = encrypt(data);
-  await setSignedCookie(c, "session", cookie, secret, {
-    // prefix: "host",
-    httpOnly: true,
-    // maxAge: 900,
-    // expires: new Date(Date.now() + 900 * 1000),
-    sameSite: "lax",
-  });
+  await setSessionCookie(c, cookie);
 }
 
 export class Session {
